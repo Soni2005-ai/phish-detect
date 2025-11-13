@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, render_template
 from src.feature_extractor import combine_features, FEATURE_NAMES
-from src.scanner import scan_website
+from scanner import scan_website
 import traceback
 
 app = Flask(__name__, template_folder="static", static_folder="static")

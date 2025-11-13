@@ -80,3 +80,38 @@ def get_whois(domain):
         return {"whois_success":1, "creation_date": str(w.creation_date), "registrar": str(w.registrar)}
     except Exception:
         return {"whois_success":0, "creation_date": None, "registrar": None}
+    
+    from feature_extractor import combine_features, FEATURE_NAMES
+
+def scan_website(url):
+    """
+    Full scanning pipeline:
+    - Fetch HTML
+    - Parse HTML content features
+    - Parse WHOIS
+    - Parse TLS certificate
+    - Return all features
+    """
+    # Fetch HTML
+    status, final_url, html = fetch_html(url)
+    
+    # Domain extract
+    domain = urlparse(final_url).netloc
+
+    # Extract features
+    html_feat = parse_html_features(html)
+    whois_info = get_whois(domain)
+    tls_info = get_tls_info(domain)
+
+    # Combine features for ML model
+    ml_features = combine_features(final_url, html)
+
+    return {
+        "status": status,
+        "final_url": final_url,
+        "html": html_feat,
+        "whois": whois_info,
+        "tls": tls_info,
+        "ml_features": dict(zip(FEATURE_NAMES, ml_features))
+    }
+
