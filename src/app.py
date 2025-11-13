@@ -1,13 +1,16 @@
 from flask import Flask, request, jsonify, render_template
-from src.feature_extractor import combine_features, FEATURE_NAMES
+from feature_extractor import combine_features, FEATURE_NAMES
 from scanner import scan_website
+import pickle
 import traceback
 
 app = Flask(__name__, template_folder="static", static_folder="static")
 
+
 @app.route("/")
 def index():
     return render_template("index.html")
+
 
 @app.route("/scan", methods=["POST"])
 def scan():
@@ -18,19 +21,20 @@ def scan():
         if not url:
             return jsonify({"error": "URL missing"}), 400
 
-        # Step 1: Extract features from the website
-        html_features, whois_data, tls_data, flags = scan_website(url)
+        # Run scanner
+        scan_data = scan_website(url)
 
-        # Step 2: Convert features into ML-ready format
-        model_features = combine_features(html_features, whois_data, tls_data)
+        html_features = scan_data["html"]
+        whois_data = scan_data["whois"]
+        tls_data = scan_data["tls"]
+        model_features = scan_data["ml_features"]
 
-        # Step 3: Load ML model
-        import pickle
+        # Load ML model
         with open("model/model.pkl", "rb") as f:
             model = pickle.load(f)
 
-        prediction = model.predict([model_features])[0]
-        confidence = model.predict_proba([model_features])[0].max() * 100
+        prediction = model.predict([list(model_features.values())])[0]
+        confidence = model.predict_proba([list(model_features.values())])[0].max() * 100
 
         result = "PHISHING" if prediction == 1 else "SAFE"
 
@@ -40,7 +44,7 @@ def scan():
             "html": html_features,
             "whois": whois_data,
             "tls": tls_data,
-            "flags": flags
+            "flags": []  # placeholder
         })
 
     except Exception as e:
