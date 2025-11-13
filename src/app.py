@@ -1,8 +1,9 @@
 from flask import Flask, request, jsonify, render_template
-from feature_extractor import combine_features, FEATURE_NAMES
-from scanner import scan_website
+from src.feature_extractor import combine_features, FEATURE_NAMES
+from src.scanner import scan_website
 import pickle
 import traceback
+import os
 
 app = Flask(__name__, template_folder="static", static_folder="static")
 
@@ -21,7 +22,7 @@ def scan():
         if not url:
             return jsonify({"error": "URL missing"}), 400
 
-        # Run scanner
+        # Scan website
         scan_data = scan_website(url)
 
         html_features = scan_data["html"]
@@ -29,12 +30,14 @@ def scan():
         tls_data = scan_data["tls"]
         model_features = scan_data["ml_features"]
 
-        # Load ML model
-        with open("model/model.pkl", "rb") as f:
+        # Load model
+        model_path = os.path.join("model", "model.pkl")
+        with open(model_path, "rb") as f:
             model = pickle.load(f)
 
-        prediction = model.predict([list(model_features.values())])[0]
-        confidence = model.predict_proba([list(model_features.values())])[0].max() * 100
+        X = [list(model_features.values())]
+        prediction = model.predict(X)[0]
+        confidence = model.predict_proba(X)[0].max() * 100
 
         result = "PHISHING" if prediction == 1 else "SAFE"
 
@@ -43,12 +46,10 @@ def scan():
             "confidence": round(confidence, 2),
             "html": html_features,
             "whois": whois_data,
-            "tls": tls_data,
-            "flags": []  # placeholder
+            "tls": tls_data
         })
 
     except Exception as e:
-        print("ERROR:", e)
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
