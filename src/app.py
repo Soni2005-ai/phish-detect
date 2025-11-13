@@ -1,17 +1,13 @@
 from flask import Flask, request, jsonify, render_template
-from src.feature_extractor import combine_features, FEATURE_NAMES
-from src.scanner import scan_website
-import pickle
+from feature_extractor import combine_features, FEATURE_NAMES
+from scanner import scan_website
 import traceback
-import os
 
 app = Flask(__name__, template_folder="static", static_folder="static")
-
 
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/scan", methods=["POST"])
 def scan():
@@ -22,22 +18,19 @@ def scan():
         if not url:
             return jsonify({"error": "URL missing"}), 400
 
-        # Scan website
-        scan_data = scan_website(url)
+        # Step 1: Extract features
+        html_features, whois_data, tls_data, flags = scan_website(url)
 
-        html_features = scan_data["html"]
-        whois_data = scan_data["whois"]
-        tls_data = scan_data["tls"]
-        model_features = scan_data["ml_features"]
+        # Step 2: Combine ML Features
+        model_features = combine_features(html_features, whois_data, tls_data)
 
-        # Load model
-        model_path = os.path.join("model", "model.pkl")
-        with open(model_path, "rb") as f:
+        # Step 3: Load Model
+        import pickle
+        with open("model/model.pkl", "rb") as f:
             model = pickle.load(f)
 
-        X = [list(model_features.values())]
-        prediction = model.predict(X)[0]
-        confidence = model.predict_proba(X)[0].max() * 100
+        prediction = model.predict([model_features])[0]
+        confidence = model.predict_proba([model_features])[0].max() * 100
 
         result = "PHISHING" if prediction == 1 else "SAFE"
 
@@ -46,10 +39,12 @@ def scan():
             "confidence": round(confidence, 2),
             "html": html_features,
             "whois": whois_data,
-            "tls": tls_data
+            "tls": tls_data,
+            "flags": flags
         })
 
     except Exception as e:
+        print("ERROR:", e)
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
