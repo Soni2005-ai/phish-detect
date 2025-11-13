@@ -1,11 +1,12 @@
-from src.scanner import scan_url
 from src.feature_extractor import combine_features, FEATURE_NAMES
+from src.scanner import scan_website
+
 
 # src/app.py
 from flask import Flask, request, jsonify, send_from_directory
 import joblib, os, time
 from feature_extractor import combine_features, FEATURE_NAMES
-from scanner import fetch_html, parse_html_features, get_whois, get_tls_info
+from src.scanner import fetch_html, parse_html_features, get_whois, get_tls_info
 
 MODEL_PATH = "model/model.pkl"
 app = Flask(__name__, static_folder='static', template_folder='static')
