@@ -13,3 +13,4 @@ cryptography
 pyOpenSSL
 urllib3
 certifi
+gunicorn
