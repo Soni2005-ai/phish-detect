@@ -1,0 +1,15 @@
+flask
+scikit-learn
+pandas
+numpy
+joblib
+tldextract
+validators
+requests
+beautifulsoup4
+python-dotenv
+whois
+cryptography
+pyOpenSSL
+urllib3
+certifi
