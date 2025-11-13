@@ -1,3 +1,6 @@
+from src.scanner import scan_url
+from src.feature_extractor import combine_features, FEATURE_NAMES
+
 # src/app.py
 from flask import Flask, request, jsonify, send_from_directory
 import joblib, os, time
