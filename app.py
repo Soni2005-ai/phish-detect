@@ -5,11 +5,7 @@ import traceback
 import os
 import pickle
 
-app = Flask(
-    __name__,
-    template_folder="src/static",
-    static_folder="src/static"
-)
+app = Flask(__name__, template_folder="src/static", static_folder="src/static")
 
 @app.route("/")
 def index():
@@ -24,13 +20,13 @@ def scan():
         if not url:
             return jsonify({"error": "URL missing"}), 400
 
-        # Step 1: Extract features
+        # Extract
         html_features, whois_data, tls_data, flags = scan_website(url)
 
-        # Step 2: Combine ML Features
+        # Combine
         model_features = combine_features(html_features, whois_data, tls_data)
 
-        # Step 3: Load Model (FINAL correct)
+        # Load model
         model_path = os.path.join("model", "model.pkl")
         with open(model_path, "rb") as f:
             model = pickle.load(f)
