@@ -33,6 +33,7 @@ def scan():
 
         prediction = model.predict([model_features])[0]
         confidence = model.predict_proba([model_features])[0].max() * 100
+
         result = "PHISHING" if prediction == 1 else "SAFE"
 
         return jsonify({
