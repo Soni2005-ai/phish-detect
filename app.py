@@ -20,13 +20,13 @@ def scan():
         if not url:
             return jsonify({"error": "URL missing"}), 400
 
-        # Extract
+        # Step 1: Extract features
         html_features, whois_data, tls_data, flags = scan_website(url)
 
-        # Combine
+        # Step 2: Combine ML features
         model_features = combine_features(html_features, whois_data, tls_data)
 
-        # Load model
+        # Step 3: Load ML model
         model_path = os.path.join("model", "model.pkl")
         with open(model_path, "rb") as f:
             model = pickle.load(f)
