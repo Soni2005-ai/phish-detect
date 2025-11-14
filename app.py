@@ -1,7 +1,8 @@
 from flask import Flask, request, jsonify, render_template
-from feature_extractor import combine_features, FEATURE_NAMES
-from scanner import scan_website
+from src.feature_extractor import combine_features, FEATURE_NAMES
+from src.scanner import scan_website
 import traceback
+import os
 
 app = Flask(__name__, template_folder="static", static_folder="static")
 
@@ -26,7 +27,8 @@ def scan():
 
         # Step 3: Load Model
         import pickle
-        with open("model/model.pkl", "rb") as f:
+        model_path = os.path.join("model", "model.pkl")
+        with open(model_path, "rb") as f:
             model = pickle.load(f)
 
         prediction = model.predict([model_features])[0]
