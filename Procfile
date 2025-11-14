@@ -1,1 +1,1 @@
-echo 'web: gunicorn app:app -w 1 -b 0.0.0.0:$PORT --timeout 200 --log-file=-' > Procfile
+web: gunicorn app:app -w 1 -b 0.0.0.0:$PORT --timeout 200 --log-file=-
