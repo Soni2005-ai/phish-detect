@@ -3,6 +3,6 @@ services:
     name: phish-detector
     env: python
     plan: free
-    region: singapore
     buildCommand: "pip install -r requirements.txt"
     startCommand: "gunicorn app:app"
+    region: singapore
