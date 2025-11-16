@@ -1,12 +1,13 @@
 import sys
-sys.path.append("src")
+import os
+
+# Correct paths
+sys.path.append(os.path.join(os.path.dirname(__file__), "src"))
 
 from flask import Flask, request, jsonify, render_template
 from src.feature_extractor import combine_features, FEATURE_NAMES
 from src.scanner import scan_website
-
 import traceback
-import os
 import pickle
 
 app = Flask(__name__, template_folder="src/static", static_folder="src/static")
@@ -24,10 +25,13 @@ def scan():
         if not url:
             return jsonify({"error": "URL missing"}), 400
 
+        # STEP 1: Extract features
         html_features, whois_data, tls_data, flags = scan_website(url)
 
+        # STEP 2: Merge ML features
         model_features = combine_features(html_features, whois_data, tls_data)
 
+        # STEP 3: Load ML model
         model_path = os.path.join("model", "model.pkl")
         with open(model_path, "rb") as f:
             model = pickle.load(f)
@@ -47,7 +51,6 @@ def scan():
         })
 
     except Exception as e:
-        print("ERROR:", e)
         traceback.print_exc()
         return jsonify({"error": str(e)}), 500
 
