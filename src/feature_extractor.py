@@ -34,7 +34,11 @@ def ext_domain_parts(url):
 def is_valid_url(url):
     return 1 if validators.url(url or "") else 0
 
+
+# ------------ NEW FIXED FUNCTION -------------
+
 def combine_features(url, html_features=None, whois_info=None, tls_info=None):
+
     url_feats = [
         has_ip(url),
         url_length(url),
@@ -47,13 +51,13 @@ def combine_features(url, html_features=None, whois_info=None, tls_info=None):
     ]
 
     html_feats = [
-        html_features.get("has_html",0),
-        html_features.get("forms",0),
-        html_features.get("password_fields",0),
-        html_features.get("num_links",0),
-        html_features.get("num_external_links",0),
-        html_features.get("num_scripts",0)
-    ] if html_features else [0,0,0,0,0,0]
+        html_features.get("has_html", 0),
+        html_features.get("forms", 0),
+        html_features.get("password_fields", 0),
+        html_features.get("num_links", 0),
+        html_features.get("num_external_links", 0),
+        html_features.get("num_scripts", 0)
+    ] if html_features else [0, 0, 0, 0, 0, 0]
 
     who_tls = [
         1 if whois_info and whois_info.get("whois_success") else 0,
@@ -63,9 +67,11 @@ def combine_features(url, html_features=None, whois_info=None, tls_info=None):
     return url_feats + html_feats + who_tls
 
 
+# ------------ THIS MUST BE AT END -------------
+
 FEATURE_NAMES = [
-    "has_ip","url_length","count_dots","has_https","count_special_chars",
-    "suspicious_token_count","ext_domain_parts","is_valid_url",
-    "has_html","forms","password_fields","num_links","num_external_links",
-    "num_scripts","whois_success","tls_present"
+    "has_ip", "url_length", "count_dots", "has_https", "count_special_chars",
+    "suspicious_token_count", "ext_domain_parts", "is_valid_url",
+    "has_html", "forms", "password_fields", "num_links", "num_external_links",
+    "num_scripts", "whois_success", "tls_present"
 ]
