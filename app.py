@@ -1,10 +1,7 @@
 import sys
-sys.path.append("./")
 sys.path.append("src")
 
 from flask import Flask, request, jsonify, render_template
-
-# FIXED IMPORTS (Use src. prefix)
 from src.feature_extractor import combine_features, FEATURE_NAMES
 from src.scanner import scan_website
 
@@ -12,18 +9,11 @@ import traceback
 import os
 import pickle
 
-# Correct template + static path for Render
-app = Flask(
-    __name__,
-    template_folder="src/static",
-    static_folder="src/static"
-)
-
+app = Flask(__name__, template_folder="src/static", static_folder="src/static")
 
 @app.route("/")
 def index():
     return render_template("index.html")
-
 
 @app.route("/scan", methods=["POST"])
 def scan():
@@ -34,13 +24,10 @@ def scan():
         if not url:
             return jsonify({"error": "URL missing"}), 400
 
-        # Step 1: Extract features
         html_features, whois_data, tls_data, flags = scan_website(url)
 
-        # Step 2: Combine ML features
         model_features = combine_features(html_features, whois_data, tls_data)
 
-        # Step 3: Load ML model
         model_path = os.path.join("model", "model.pkl")
         with open(model_path, "rb") as f:
             model = pickle.load(f)
